@@ -2,27 +2,49 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type PdfFile {
+type User {
   """Example field (placeholder)"""
   exampleField: Int!
 }
 
+type PdfFileInfos {
+  pages: Int!
+  fileSizeInBytes: Int!
+}
+
+type PdfFile {
+  id: String!
+  url: String!
+  fileInfos: PdfFileInfos!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletesAt: DateTime
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Query {
+  users: [User!]!
+  user(id: Int!): User!
   pdfFiles: [PdfFile!]!
   pdfFile(id: Int!): PdfFile!
 }
 
 type Mutation {
-  createPdfFile(createPdfFileInput: CreatePdfFileInput!): PdfFile!
-  updatePdfFile(updatePdfFileInput: UpdatePdfFileInput!): PdfFile!
+  createUser(createUserInput: CreateUserInput!): User!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  removeUser(id: Int!): User!
   removePdfFile(id: Int!): PdfFile!
 }
 
-input CreatePdfFileInput {
+input CreateUserInput {
   """Example field (placeholder)"""
   exampleField: Int!
 }
 
-input UpdatePdfFileInput {
+input UpdateUserInput {
   id: Int!
 }

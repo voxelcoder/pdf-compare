@@ -1,7 +1,23 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field, GraphQLISODateTime } from '@nestjs/graphql';
+import { PdfFileInfos } from './pdf-file-infos.entity';
 
 @ObjectType()
 export class PdfFile {
-  @Field(() => Int, { description: 'Example field (placeholder)' })
-  exampleField: number;
+  @Field()
+  id: string;
+
+  @Field()
+  url: string;
+
+  @Field()
+  fileInfos: PdfFileInfos;
+
+  @Field(() => GraphQLISODateTime)
+  createdAt: Date;
+
+  @Field(() => GraphQLISODateTime)
+  updatedAt: Date;
+
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  deletesAt?: Date;
 }

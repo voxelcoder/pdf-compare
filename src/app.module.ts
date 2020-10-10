@@ -13,9 +13,13 @@ import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { GraphQLOptions } from './graphql.options';
 import { ResourcesModule } from './resources/resources.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
+    MulterModule.register({
+      dest: '/upload',
+    }),
     ConfigModule.forRoot(),
     GraphQLModule.forRootAsync({
       imports: [ConfigModule],
