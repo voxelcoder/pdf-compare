@@ -4,7 +4,7 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
@@ -12,22 +12,38 @@ import { extname } from 'path';
 export class PdfFilesController {
   @Post('upload')
   @UseInterceptors(
-    FilesInterceptor('files', 2, {
-      storage: diskStorage({
-        destination: './uploads/',
-        filename: (request, file, callback) => {
-          const name = file.originalname.split('.')[0];
-          const fileExtName = extname(file.originalname);
-          const randomName = Array(4)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          callback(null, `${name}-${randomName}${fileExtName}`);
-        },
-      }),
-    }),
+    FileFieldsInterceptor(
+      [
+        { name: 'pdfFirst', maxCount: 1 },
+        { name: 'pdfSecond', maxCount: 1 },
+      ],
+      {
+        storage: diskStorage({
+          destination: './uploads/',
+          filename: (request, file, callback) => {
+            const name = file.originalname.split('.')[0];
+            const fileExtName = extname(file.originalname);
+            const randomName = Array(4)
+              .fill(null)
+              .map(() => Math.round(Math.random() * 16).toString(16))
+              .join('');
+            callback(null, `${name}-${randomName}${fileExtName}`);
+          },
+        }),
+      },
+    ),
   )
   uploadFile(@UploadedFiles() files) {
-    console.log({ files });
+    const pdfFirst = files.pdfFirst || null;
+    const pdfSecond = files.pdfSecond || null;
+
+    console.log({ pdfFirst, pdfSecond });
+
+    // const newPdf = await this.pdfComparer.compare(pdfFirst, pdfSecond);
+    //
+    // this.prismaService.pdfFiles.create({
+    //   url: newPdf.url,
+    //   ...
+    // })
   }
 }
