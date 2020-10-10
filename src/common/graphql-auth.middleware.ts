@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import firebaseAdmin from 'firebase-admin';
 import firebase from '../firebase';
+import { UserService } from '../prisma/services/user/user.service';
 
 @Injectable()
 export class GraphQLAuthMiddleware implements NestMiddleware {
@@ -19,7 +20,7 @@ export class GraphQLAuthMiddleware implements NestMiddleware {
 
   constructor(
     private readonly configService: ConfigService,
-    private userService: PrismaUsersService,
+    private readonly userService: UserService,
   ) {
     const nodeEnv = configService.get<string>('NODE_ENV');
     const testingUserId = configService.get<string>(
