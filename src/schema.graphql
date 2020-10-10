@@ -1,0 +1,28 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type PdfFile {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type Query {
+  pdfFiles: [PdfFile!]!
+  pdfFile(id: Int!): PdfFile!
+}
+
+type Mutation {
+  createPdfFile(createPdfFileInput: CreatePdfFileInput!): PdfFile!
+  updatePdfFile(updatePdfFileInput: UpdatePdfFileInput!): PdfFile!
+  removePdfFile(id: Int!): PdfFile!
+}
+
+input CreatePdfFileInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdatePdfFileInput {
+  id: Int!
+}

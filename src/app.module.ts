@@ -10,9 +10,21 @@ import { CommonModule } from './common/common.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { GraphQLAuthMiddleware } from './common/graphql-auth.middleware';
 import { ConfigModule } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
+import { GraphQLOptions } from './graphql.options';
+import { ResourcesModule } from './resources/resources.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), CommonModule, PrismaModule],
+  imports: [
+    ConfigModule.forRoot(),
+    GraphQLModule.forRootAsync({
+      imports: [ConfigModule],
+      useClass: GraphQLOptions,
+    }),
+    CommonModule,
+    PrismaModule,
+    ResourcesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
