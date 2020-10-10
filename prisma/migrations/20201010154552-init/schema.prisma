@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = "***"
 }
 
 generator client {
@@ -11,10 +11,9 @@ generator client {
 }
 
 model User {
-  id        String  @id @default(cuid())
-  name      String?
-  email     String? @unique
-  avatarUrl String?
+  id    String  @id @default(cuid())
+  name  String?
+  email String? @unique
 
   firebaseUid String? @unique
 
