@@ -1,16 +1,24 @@
 import {
+  BadRequestException,
   Controller,
   Post,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
+import { PdfCompareService } from '../../comparison/pdf-compare/pdf-compare.service';
+import { PdfFilesService } from './pdf-files.service';
+import { PdfUploadInterceptor } from './interceptors/pdf-upload.interceptor';
 
 @Controller('pdf-files')
 export class PdfFilesController {
-  @Post('upload')
+  constructor(
+    private readonly pdfCompareService: PdfCompareService,
+    private readonly pdfFilesService: PdfFilesService,
+  ) {}
+
+  @Post('compare')
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -18,32 +26,34 @@ export class PdfFilesController {
         { name: 'pdfSecond', maxCount: 1 },
       ],
       {
-        storage: diskStorage({
-          destination: './uploads/',
-          filename: (request, file, callback) => {
-            const name = file.originalname.split('.')[0];
-            const fileExtName = extname(file.originalname);
-            const randomName = Array(4)
-              .fill(null)
-              .map(() => Math.round(Math.random() * 16).toString(16))
-              .join('');
-            callback(null, `${name}-${randomName}${fileExtName}`);
-          },
-        }),
+        // @TODO Find out how to upload files to Google Cloud Storage with multer (or another lib)
+        // @TODO Maybe temporarily upload with multer here, and upload to GCS afterwards
+        // @TODO Add a rate-limiter
+        storage: memoryStorage(),
+        limits: {
+          fileSize: 10 * 1024 * 1024, // no larger than 5mb, you can change as needed.
+        },
       },
     ),
+    PdfUploadInterceptor,
   )
-  uploadFile(@UploadedFiles() files) {
-    const pdfFirst = files.pdfFirst || null;
-    const pdfSecond = files.pdfSecond || null;
+  async compareFiles(
+    @UploadedFiles()
+    files: {
+      pdfFirst: Express.Multer.File[];
+      pdfSecond: Express.Multer.File[];
+    },
+  ) {
+    const pdfFirst = files.pdfFirst[0] || null;
+    const pdfSecond = files.pdfSecond[0] || null;
 
-    console.log({ pdfFirst, pdfSecond });
+    if (pdfFirst === null || pdfSecond === null) {
+      throw new BadRequestException(
+        null,
+        'Please specify at least one file for `pdfFirst` and one for `pdfSecond`',
+      );
+    }
 
-    // const newPdf = await this.pdfComparer.compare(pdfFirst, pdfSecond);
-    //
-    // this.prismaService.pdfFiles.create({
-    //   url: newPdf.url,
-    //   ...
-    // })
+    return this.pdfFilesService.compareFiles({ pdfFirst, pdfSecond });
   }
 }

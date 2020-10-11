@@ -32,6 +32,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@google-cloud/storage": "^5.3.0",
     "@nestjs/common": "^7.0.0",
     "@nestjs/config": "^0.5.0",
     "@nestjs/core": "^7.0.0",
@@ -42,6 +43,7 @@
     "apollo-server-express": "^2.18.2",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
+    "cuid": "^2.1.8",
     "dotenv": "^8.2.0",
     "firebase-admin": "^9.2.0",
     "graphql": "^15.3.0",
@@ -57,6 +59,7 @@
     "@nestjs/testing": "^7.0.0",
     "@types/express": "^4.17.3",
     "@types/jest": "26.0.10",
+    "@types/multer": "^1.4.4",
     "@types/node": "^13.9.1",
     "@types/supertest": "^2.0.8",
     "@typescript-eslint/eslint-plugin": "3.9.1",

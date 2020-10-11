@@ -14,6 +14,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { GraphQLOptions } from './graphql.options';
 import { ResourcesModule } from './resources/resources.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { ComparisonModule } from './comparison/comparison.module';
+import { GoogleModule } from './google/google.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { MulterModule } from '@nestjs/platform-express';
     CommonModule,
     PrismaModule,
     ResourcesModule,
+    ComparisonModule,
+    GoogleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
