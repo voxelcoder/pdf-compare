@@ -1,0 +1,68 @@
+{
+  "version": "0.3.14-fixed",
+  "steps": [
+    {
+      "tag": "CreateEnum",
+      "enum": "PdfFileType",
+      "values": [
+        "FIRST",
+        "SECOND",
+        "FINAL"
+      ]
+    },
+    {
+      "tag": "CreateEnum",
+      "enum": "PdfFileState",
+      "values": [
+        "PROCESSING",
+        "DONE"
+      ]
+    },
+    {
+      "tag": "CreateField",
+      "model": "PdfFile",
+      "field": "remoteUri",
+      "type": "String",
+      "arity": "Optional"
+    },
+    {
+      "tag": "CreateField",
+      "model": "PdfFile",
+      "field": "type",
+      "type": "PdfFileType",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateField",
+      "model": "PdfFile",
+      "field": "state",
+      "type": "PdfFileState",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "PdfFile",
+          "field": "state"
+        },
+        "directive": "default"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "PdfFile",
+          "field": "state"
+        },
+        "directive": "default"
+      },
+      "argument": "",
+      "value": "PROCESSING"
+    }
+  ]
+}
