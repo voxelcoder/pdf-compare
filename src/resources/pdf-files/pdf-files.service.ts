@@ -35,7 +35,7 @@ export class PdfFilesService {
       pdfFile => pdfFile.type === PdfFileType.SECOND,
     );
 
-    // @TODO get both pfd files from bucket and compare (call the function in a queue)
+    // @TODO get both pdf files from bucket and compare
     //this.commandBus.execute(new ComparePdfFilesCommand(firstPdfFile.id, secondPdfFile.id));
 
     return pdfFiles;
@@ -51,6 +51,11 @@ export class PdfFilesService {
     const bucket = this.googleStorageService.getPdfCompareBucket();
     const promises: Promise<PdfFile>[] = [];
 
+    /*
+     * In order to be able to work with Prisma and to
+     * resolve successful uploads of PDF documents to our GCP Bucket manually,
+     * we have to iterate over both of the pdf files asynchronously.
+     */
     await asyncForEach(Object.keys(files), async (key, index) => {
       const pdfFile: Express.Multer.File | null = files[key] || null;
 
@@ -60,16 +65,22 @@ export class PdfFilesService {
       const blobStream = blob.createWriteStream();
 
       promises.push(
+        // We wrap everything in a Promise because we have to await the 'finish' event of the blob stream.
         new Promise((resolve, reject) => {
           blobStream.on('error', error => reject(error));
 
           blobStream.on('finish', async () => {
             await blob.makePublic();
 
+            /*
+             * We call the format function in case there are URL-unfriendly
+             * characters in either the bucket or blob name.
+             */
             const publicUrl = format(
               `https://storage.googleapis.com/${bucket.name}/${blob.name}`,
             );
 
+            // Creates a database-entry for the PDF file we just uploaded.
             const pdfFile: PdfFile = await this.prismaService.pdfFile.create({
               data: {
                 remotePath: blob.name,
@@ -87,7 +98,8 @@ export class PdfFilesService {
       );
     });
 
-    return await Promise.all(promises);
+    // We call Promise.all to ensure that we processed every PDF upload before continuing.
+    return Promise.all(promises);
   }
 
   findAll(user: AuthenticatedUserType) {
