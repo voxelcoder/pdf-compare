@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = "***"
 }
 
 generator client {
@@ -38,7 +38,7 @@ enum PdfFileState {
 model PdfFile {
   id String @id @default(cuid())
 
-  url        String?
+  url        String
   remotePath String?
   type       PdfFileType
   state      PdfFileState @default(PROCESSING)
@@ -46,7 +46,7 @@ model PdfFile {
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String
 
-  fileInfos PdfFileInfos?
+  fileInfos PdfFileInfos
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
