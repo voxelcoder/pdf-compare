@@ -6,9 +6,16 @@ import { ComparisonModule } from '../../comparison/comparison.module';
 import { GoogleModule } from '../../google/google.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
-  imports: [ComparisonModule, GoogleModule, PrismaModule, ConfigModule],
+  imports: [
+    ComparisonModule,
+    GoogleModule,
+    PrismaModule,
+    ConfigModule,
+    CqrsModule,
+  ],
   providers: [PdfFilesResolver, PdfFilesService],
   controllers: [PdfFilesController],
 })

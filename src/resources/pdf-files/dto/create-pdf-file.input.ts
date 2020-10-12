@@ -1,12 +1,9 @@
-import { ObjectType, Field, GraphQLISODateTime } from '@nestjs/graphql';
-import { PdfFileInfos } from './pdf-file-infos.entity';
+import { Field, GraphQLISODateTime, InputType } from '@nestjs/graphql';
 import { AuthenticatedUserType } from '../../../prisma/services/user/types/authenticated-user.type';
+import { PdfFileInfos } from '../entities/pdf-file-infos.entity';
 
-@ObjectType()
-export class PdfFile {
-  @Field()
-  id: string;
-
+@InputType()
+export class CreatePdfFileInput {
   @Field()
   url: string;
 
@@ -17,7 +14,7 @@ export class PdfFile {
   ownerId: string;
 
   @Field()
-  fileInfos: PdfFileInfos;
+  pdfFileInfos: PdfFileInfos;
 
   @Field(() => GraphQLISODateTime)
   createdAt: Date;
@@ -25,6 +22,9 @@ export class PdfFile {
   @Field(() => GraphQLISODateTime)
   updatedAt: Date;
 
-  @Field(() => GraphQLISODateTime, { nullable: true })
-  deletesAt?: Date;
+  @Field(() => GraphQLISODateTime)
+  deletesAt: Date;
+
+  @Field({ defaultValue: false })
+  deleted: boolean;
 }

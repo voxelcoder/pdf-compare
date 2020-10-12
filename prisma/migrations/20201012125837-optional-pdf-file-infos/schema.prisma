@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url = "***"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String  @id @default(cuid())
+  name      String?
+  email     String? @unique
+  avatarUrl String?
+
+  firebaseUid String? @unique
+
+  pdfFiles PdfFile[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PdfFileType {
+  FIRST
+  SECOND
+  FINAL
+}
+
+enum PdfFileState {
+  PROCESSING
+  DONE
+}
+
+model PdfFile {
+  id String @id @default(cuid())
+
+  url        String
+  remotePath String?
+  type       PdfFileType
+  state      PdfFileState @default(PROCESSING)
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  fileInfos PdfFileInfos?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletesAt DateTime?
+  deleted   Boolean   @default(false)
+}
+
+model PdfFileInfos {
+  id String @id @default(cuid())
+
+  pdfFile   PdfFile @relation(fields: [pdfFileId], references: [id])
+  pdfFileId String
+
+  pages           Int
+  fileSizeInBytes Int
+}

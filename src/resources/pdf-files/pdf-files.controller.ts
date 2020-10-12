@@ -9,7 +9,8 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { PdfCompareService } from '../../comparison/pdf-compare/pdf-compare.service';
 import { PdfFilesService } from './pdf-files.service';
-import { PdfUploadInterceptor } from './interceptors/pdf-upload.interceptor';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { AuthenticatedUserType } from '../../prisma/services/user/types/authenticated-user.type';
 
 @Controller('pdf-files')
 export class PdfFilesController {
@@ -26,8 +27,6 @@ export class PdfFilesController {
         { name: 'pdfSecond', maxCount: 1 },
       ],
       {
-        // @TODO Find out how to upload files to Google Cloud Storage with multer (or another lib)
-        // @TODO Maybe temporarily upload with multer here, and upload to GCS afterwards
         // @TODO Add a rate-limiter
         storage: memoryStorage(),
         limits: {
@@ -35,7 +34,6 @@ export class PdfFilesController {
         },
       },
     ),
-    PdfUploadInterceptor,
   )
   async compareFiles(
     @UploadedFiles()
@@ -43,6 +41,7 @@ export class PdfFilesController {
       pdfFirst: Express.Multer.File[];
       pdfSecond: Express.Multer.File[];
     },
+    @CurrentUser() user: AuthenticatedUserType,
   ) {
     const pdfFirst = files.pdfFirst[0] || null;
     const pdfSecond = files.pdfSecond[0] || null;
@@ -54,6 +53,6 @@ export class PdfFilesController {
       );
     }
 
-    return this.pdfFilesService.compareFiles({ pdfFirst, pdfSecond });
+    return this.pdfFilesService.compareFiles({ pdfFirst, pdfSecond }, user);
   }
 }

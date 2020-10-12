@@ -8,7 +8,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CommonModule } from './common/common.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { GraphQLAuthMiddleware } from './common/graphql-auth.middleware';
+import { AuthMiddleware } from './common/auth-middleware.service';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { GraphQLOptions } from './graphql.options';
@@ -38,8 +38,8 @@ import { GoogleModule } from './google/google.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(GraphQLAuthMiddleware).forRoutes({
-      path: 'graphql',
+    consumer.apply(AuthMiddleware).forRoutes({
+      path: '*',
       method: RequestMethod.ALL,
     });
   }

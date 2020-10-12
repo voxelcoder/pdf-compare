@@ -12,8 +12,8 @@ import firebase from '../firebase';
 import { UserService } from '../prisma/services/user/user.service';
 
 @Injectable()
-export class GraphQLAuthMiddleware implements NestMiddleware {
-  private readonly logger = new Logger(GraphQLAuthMiddleware.name);
+export class AuthMiddleware implements NestMiddleware {
+  private readonly logger = new Logger(AuthMiddleware.name);
 
   private readonly isProduction: boolean = false;
   private readonly testingUserId: string | null = null;

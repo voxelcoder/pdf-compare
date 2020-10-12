@@ -1,40 +1,97 @@
 import { Injectable } from '@nestjs/common';
 import { PdfCompareService } from '../../comparison/pdf-compare/pdf-compare.service';
 import { GoogleStorageService } from '../../google/google-storage/google-storage.service';
+import { CommandBus } from '@nestjs/cqrs';
+import { AuthenticatedUserType } from '../../prisma/services/user/types/authenticated-user.type';
+import cuid from 'cuid';
+import { format } from 'util';
+import { PdfFileType, PdfFile } from '@prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
+import { asyncForEach } from '../../common/functions/async-for-each.function';
 
 @Injectable()
 export class PdfFilesService {
   constructor(
     private readonly googleStorageService: GoogleStorageService,
     private readonly pdfCompareService: PdfCompareService,
+    private readonly prismaService: PrismaService,
+    private readonly commandBus: CommandBus,
   ) {}
 
-  async compareFiles(files: {
-    pdfFirst: Express.Multer.File;
-    pdfSecond: Express.Multer.File;
-  }) {
-    const bucket = this.googleStorageService.getPdfCompareBucket();
+  async compareFiles(
+    files: {
+      pdfFirst: Express.Multer.File;
+      pdfSecond: Express.Multer.File;
+    },
+    user: AuthenticatedUserType,
+  ): Promise<PdfFile[]> {
+    const pdfFiles = await this.uploadToGoogleCloudStorage(files, user);
 
-    const blob = bucket.file(files.pdfFirst.originalname);
-    const blobStream = blob.createWriteStream();
-
-    return '';
-
-    // @TODO remove pdf files from memory if that's not done already
-
-    // @TODO get both pfd files from bucket and compare (call the function in a queue)
-    const newPdf = await this.pdfCompareService.compare(
-      files.pdfFirst,
-      files.pdfSecond,
+    const firstPdfFile = pdfFiles.find(
+      pdfFile => pdfFile.type === PdfFileType.FIRST,
     );
 
-    //await this.prismaService.pdfFile.create({
-    // @TODO add the original two PDFs into the databse for visualizing the comparisons
-    // url: newPdf.url,
-    // });
+    const secondPdfFile = pdfFiles.find(
+      pdfFile => pdfFile.type === PdfFileType.SECOND,
+    );
+
+    // @TODO get both pfd files from bucket and compare (call the function in a queue)
+    //this.commandBus.execute(new ComparePdfFilesCommand(firstPdfFile.id, secondPdfFile.id));
+
+    return pdfFiles;
   }
 
-  findAll() {
+  async uploadToGoogleCloudStorage(
+    files: {
+      pdfFirst: Express.Multer.File;
+      pdfSecond: Express.Multer.File;
+    },
+    user: AuthenticatedUserType,
+  ): Promise<PdfFile[]> {
+    const bucket = this.googleStorageService.getPdfCompareBucket();
+    const promises: Promise<PdfFile>[] = [];
+
+    await asyncForEach(Object.keys(files), async (key, index) => {
+      const pdfFile: Express.Multer.File | null = files[key] || null;
+
+      const pdfFileId = cuid();
+
+      const blob = bucket.file(`files/${pdfFileId}.pdf`);
+      const blobStream = blob.createWriteStream();
+
+      promises.push(
+        new Promise((resolve, reject) => {
+          blobStream.on('error', error => reject(error));
+
+          blobStream.on('finish', async () => {
+            await blob.makePublic();
+
+            const publicUrl = format(
+              `https://storage.googleapis.com/${bucket.name}/${blob.name}`,
+            );
+
+            const pdfFile: PdfFile = await this.prismaService.pdfFile.create({
+              data: {
+                remotePath: blob.name,
+                url: publicUrl,
+                owner: { connect: { id: user.id } },
+                type: index === 0 ? PdfFileType.FIRST : PdfFileType.SECOND,
+              },
+            });
+
+            resolve(pdfFile);
+          });
+
+          blobStream.end(pdfFile.buffer);
+        }),
+      );
+    });
+
+    return await Promise.all(promises);
+  }
+
+  findAll(user: AuthenticatedUserType) {
+    console.log({ user });
     return `This action returns all pdfFiles`;
   }
 
