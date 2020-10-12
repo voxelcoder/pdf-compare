@@ -8,6 +8,7 @@ import { format } from 'util';
 import { PdfFileType, PdfFile } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { asyncForEach } from '../../common/functions/async-for-each.function';
+import { ComparePdfFilesCommand } from './commands/impl/compare-pdf-files.command';
 
 @Injectable()
 export class PdfFilesService {
@@ -35,13 +36,14 @@ export class PdfFilesService {
       pdfFile => pdfFile.type === PdfFileType.SECOND,
     );
 
-    // @TODO get both pdf files from bucket and compare
-    //this.commandBus.execute(new ComparePdfFilesCommand(firstPdfFile.id, secondPdfFile.id));
+    await this.commandBus.execute(
+      new ComparePdfFilesCommand(firstPdfFile.id, secondPdfFile.id),
+    );
 
     return pdfFiles;
   }
 
-  async uploadToGoogleCloudStorage(
+  private async uploadToGoogleCloudStorage(
     files: {
       pdfFirst: Express.Multer.File;
       pdfSecond: Express.Multer.File;

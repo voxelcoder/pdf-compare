@@ -1,6 +1,16 @@
-// @TODO (s):
-// 1. Create a handler for `ComparePdfFilesCommand` (example: https://docs.nestjs.com/recipes/cqrs#commands -> kill-dragon.command.ts)
-// 2. Inject `PdfCompareService` into constructor instead of what is mentioned in the example constructor (repo)
-// 3. Use `compare` method of `PdfCompareService` in `execute` of handler
-// 4. Handler is done
-// 5. Compare files in `PdfCompareService` ...
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { ComparePdfFilesCommand } from '../impl/compare-pdf-files.command';
+import { PdfCompareService } from '../../../../comparison/pdf-compare/pdf-compare.service';
+
+@CommandHandler(ComparePdfFilesCommand)
+export class ComparePdfFilesHandler
+  implements ICommandHandler<ComparePdfFilesCommand> {
+  constructor(private readonly pdfCompareService: PdfCompareService) {}
+
+  async execute(command: ComparePdfFilesCommand): Promise<any> {
+    await this.pdfCompareService.compare(
+      command.firstPdfId,
+      command.secondPdfId,
+    );
+  }
+}

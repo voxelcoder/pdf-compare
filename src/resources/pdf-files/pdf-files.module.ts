@@ -7,6 +7,7 @@ import { GoogleModule } from '../../google/google.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ComparePdfFilesHandler } from './commands/handlers/compare-pdf-files.handler';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { CqrsModule } from '@nestjs/cqrs';
     ConfigModule,
     CqrsModule,
   ],
-  providers: [PdfFilesResolver, PdfFilesService],
+  providers: [PdfFilesResolver, PdfFilesService, ComparePdfFilesHandler],
   controllers: [PdfFilesController],
 })
 export class PdfFilesModule {}
